@@ -1,0 +1,27 @@
+$kind: http-request
+name: 6. PATCH - แก้ไขบางส่วน (ราคา/จำนวน)
+url: "{{base_url}}/api/products.php?id={{product_id}}"
+method: PATCH
+headers:
+  Content-Type: application/json
+queryParams:
+  id: "{{product_id}}"
+body:
+  type: json
+  content: |-
+    {
+      "price": 29.99,
+      "stock": 55
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 200', function () { pm.response.to.have.status(200); });
+      pm.test('Only price and stock changed', function () {
+        const d = pm.response.json().data;
+        pm.expect(d.price).to.eql(29.99);
+        pm.expect(d.stock).to.eql(55);
+        pm.expect(d.title).to.eql('Keyboard Pro');
+      });
+    language: text/javascript
+order: 6000

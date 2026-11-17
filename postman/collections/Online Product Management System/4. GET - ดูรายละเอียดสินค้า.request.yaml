@@ -1,0 +1,15 @@
+$kind: http-request
+name: 4. GET - ดูรายละเอียดสินค้า (id ที่เพิ่งเพิ่ม)
+url: "{{base_url}}/api/products.php?id={{product_id}}"
+method: GET
+queryParams:
+  id: "{{product_id}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 200', function () { pm.response.to.have.status(200); });
+      pm.test('Product id matches', function () {
+        pm.expect(pm.response.json().id).to.eql(parseInt(pm.collectionVariables.get('product_id')));
+      });
+    language: text/javascript
+order: 4000

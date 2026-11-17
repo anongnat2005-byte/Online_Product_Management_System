@@ -1,0 +1,26 @@
+$kind: http-request
+name: 11. DummyJSON - นำเข้า 5 รายการลงฐานข้อมูล
+url: "{{base_url}}/api/dummyjson.php?action=import"
+method: POST
+headers:
+  Content-Type: application/json
+queryParams:
+  action: import
+body:
+  type: json
+  content: |-
+    {
+      "limit": 5,
+      "skip": 0
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 201', function () { pm.response.to.have.status(201); });
+      pm.test('Import summary returned', function () {
+        const json = pm.response.json();
+        pm.expect(json).to.have.property('imported');
+        pm.expect(json).to.have.property('skipped');
+      });
+    language: text/javascript
+order: 11000

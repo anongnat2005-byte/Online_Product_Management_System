@@ -1,0 +1,13 @@
+$kind: http-request
+name: 8. GET - สินค้าที่ลบแล้วต้องได้ 404
+url: "{{base_url}}/api/products.php?id={{product_id}}"
+method: GET
+queryParams:
+  id: "{{product_id}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 404 Not Found', function () { pm.response.to.have.status(404); });
+      pm.test('Error message returned', function () { pm.expect(pm.response.json()).to.have.property('error'); });
+    language: text/javascript
+order: 8000

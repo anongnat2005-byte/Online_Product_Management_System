@@ -1,0 +1,8 @@
+$kind: collection
+description: |-
+  ชุดทดสอบ REST API (GET, POST, PUT, PATCH, DELETE) และ DummyJSON
+
+  วิธีใช้: Import ไฟล์นี้ใน Postman แล้วเช็กตัวแปร base_url ในแท็บ Variables ของ Collection ให้ตรงกับเครื่อง จากนั้นกด Run collection เพื่อรันทดสอบทุกข้อตามลำดับ
+variables:
+  base_url: http://localhost/Online_Product_Management_System
+  product_id: "1"

@@ -1,0 +1,29 @@
+$kind: http-request
+url: "{{base_url}}/api/products.php"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "Keyboard Test",
+      "description": "คีย์บอร์ดสำหรับทดสอบ",
+      "price": 35.5,
+      "category": "accessories",
+      "stock": 40,
+      "brand": "Keychron"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 201 Created', function () { pm.response.to.have.status(201); });
+      const json = pm.response.json();
+      pm.test('Returns the new product with id', function () {
+        pm.expect(json.data.id).to.be.a('number');
+        pm.expect(json.data.title).to.eql('Keyboard Test');
+      });
+      // เก็บ id ไว้ใช้กับ PUT / PATCH / DELETE ในขั้นตอนถัดไป
+      pm.collectionVariables.set('product_id', json.data.id);
+    language: text/javascript
+order: 3000

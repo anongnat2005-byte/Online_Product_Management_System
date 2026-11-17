@@ -1,0 +1,31 @@
+$kind: http-request
+name: 5. PUT - แก้ไขข้อมูลทั้งรายการ
+url: "{{base_url}}/api/products.php?id={{product_id}}"
+method: PUT
+headers:
+  Content-Type: application/json
+queryParams:
+  id: "{{product_id}}"
+body:
+  type: json
+  content: |-
+    {
+      "title": "Keyboard Pro",
+      "description": "คีย์บอร์ดรุ่นอัปเกรด",
+      "price": 49.99,
+      "category": "accessories",
+      "stock": 30,
+      "brand": "Keychron"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 200', function () { pm.response.to.have.status(200); });
+      pm.test('All fields updated', function () {
+        const d = pm.response.json().data;
+        pm.expect(d.title).to.eql('Keyboard Pro');
+        pm.expect(d.price).to.eql(49.99);
+        pm.expect(d.stock).to.eql(30);
+      });
+    language: text/javascript
+order: 5000

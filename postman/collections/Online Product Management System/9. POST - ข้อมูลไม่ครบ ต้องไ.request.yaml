@@ -1,0 +1,21 @@
+$kind: http-request
+name: 9. POST - ข้อมูลไม่ครบ ต้องได้ 422
+url: "{{base_url}}/api/products.php"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "",
+      "price": -5,
+      "category": "test"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 422 Unprocessable', function () { pm.response.to.have.status(422); });
+      pm.test('Validation details returned', function () { pm.expect(pm.response.json().details).to.be.an('array'); });
+    language: text/javascript
+order: 9000
