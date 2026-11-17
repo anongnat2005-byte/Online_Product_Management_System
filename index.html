@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Online Product Management System</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <h1>Online Product Management System</h1>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" id="btnImport">นำเข้าจาก DummyJSON</button>
+        <button class="btn btn-primary" id="btnAdd">+ เพิ่มสินค้า</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="toolbar">
+      <input type="search" id="searchInput" placeholder="ค้นหาชื่อ รายละเอียด หรือแบรนด์..." aria-label="ค้นหาสินค้า">
+      <select id="categoryFilter" aria-label="กรองตามหมวดหมู่">
+        <option value="">ทุกหมวดหมู่</option>
+      </select>
+      <select id="sortSelect" aria-label="เรียงลำดับ">
+        <option value="id|asc">ใหม่สุดอยู่ท้าย</option>
+        <option value="id|desc">ใหม่สุดอยู่บน</option>
+        <option value="title|asc">ชื่อ ก-ฮ / A-Z</option>
+        <option value="price|asc">ราคาต่ำ → สูง</option>
+        <option value="price|desc">ราคาสูง → ต่ำ</option>
+        <option value="stock|asc">สต็อกน้อย → มาก</option>
+      </select>
+    </section>
+
+    <p class="summary" id="summary">กำลังโหลด...</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>สินค้า</th>
+            <th>หมวดหมู่</th>
+            <th class="num">ราคา</th>
+            <th class="num">จำนวน</th>
+            <th class="actions-col">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="productBody"></tbody>
+      </table>
+    </div>
+
+    <nav class="pager" id="pager"></nav>
+  </main>
+
+  <!-- ฟอร์มเพิ่ม/แก้ไขสินค้า (POST / PUT) -->
+  <dialog id="productDialog">
+    <form id="productForm" method="dialog">
+      <h2 id="productDialogTitle">เพิ่มสินค้า</h2>
+      <input type="hidden" id="fId">
+      <label>ชื่อสินค้า *
+        <input type="text" id="fTitle" required maxlength="255">
+      </label>
+      <label>หมวดหมู่ *
+        <input type="text" id="fCategory" required maxlength="100" list="categoryList">
+        <datalist id="categoryList"></datalist>
+      </label>
+      <div class="row">
+        <label>ราคา *
+          <input type="number" id="fPrice" required min="0" step="0.01">
+        </label>
+        <label>จำนวนสินค้า *
+          <input type="number" id="fStock" required min="0" step="1">
+        </label>
+      </div>
+      <label>แบรนด์
+        <input type="text" id="fBrand" maxlength="100">
+      </label>
+      <label>รายละเอียด
+        <textarea id="fDescription" rows="3"></textarea>
+      </label>
+      <label>URL รูปภาพ
+        <input type="url" id="fThumbnail" maxlength="500" placeholder="https://...">
+      </label>
+      <p class="form-error" id="formError" hidden></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" data-close>ยกเลิก</button>
+        <button type="submit" class="btn btn-primary" id="btnSave">บันทึก</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ฟอร์มแก้ไขเร็ว (PATCH) -->
+  <dialog id="quickDialog">
+    <form id="quickForm" method="dialog">
+      <h2>แก้ไขราคา / จำนวน</h2>
+      <p class="muted" id="quickName"></p>
+      <input type="hidden" id="qId">
+      <div class="row">
+        <label>ราคา
+          <input type="number" id="qPrice" required min="0" step="0.01">
+        </label>
+        <label>จำนวนสินค้า
+          <input type="number" id="qStock" required min="0" step="1">
+        </label>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" data-close>ยกเลิก</button>
+        <button type="submit" class="btn btn-primary">บันทึก</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ยืนยันการลบ (DELETE) -->
+  <dialog id="deleteDialog">
+    <form method="dialog">
+      <h2>ลบสินค้า</h2>
+      <p id="deleteText"></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" data-close>ยกเลิก</button>
+        <button type="button" class="btn btn-danger" id="btnConfirmDelete">ลบ</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ดึงข้อมูลจาก DummyJSON -->
+  <dialog id="importDialog" class="wide">
+    <div>
+      <h2>สินค้าจาก DummyJSON</h2>
+      <div class="toolbar">
+        <input type="search" id="djSearch" placeholder="ค้นหาใน DummyJSON เช่น phone, laptop">
+        <button class="btn btn-ghost" id="btnDjSearch">ค้นหา</button>
+        <button class="btn btn-primary" id="btnDjImportAll">นำเข้า 20 รายการแรก</button>
+      </div>
+      <p class="muted" id="djStatus"></p>
+      <div class="table-wrap small">
+        <table>
+          <thead>
+            <tr><th>สินค้า</th><th>หมวดหมู่</th><th class="num">ราคา</th><th></th></tr>
+          </thead>
+          <tbody id="djBody"></tbody>
+        </table>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" data-close>ปิด</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="assets/app.js"></script>
+</body>
+</html>

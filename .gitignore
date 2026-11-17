@@ -1,0 +1,9 @@
+# ไฟล์ตั้งค่าที่มีรหัสผ่านฐานข้อมูล
+config.php
+
+# ไฟล์ระบบ/editor
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log
